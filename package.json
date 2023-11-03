@@ -1,0 +1,6 @@
+{
+	"dependencies": {
+		"@adobe/jsonschema2md": "^7.1.5",
+		"markdown-folder-to-html": "^2.4.0"
+	}
+}
