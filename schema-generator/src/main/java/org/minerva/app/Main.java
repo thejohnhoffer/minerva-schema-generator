@@ -2,8 +2,11 @@ package org.minerva.app;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.saasquatch.jsonschemainferrer.AdditionalPropertiesPolicies;
+import com.saasquatch.jsonschemainferrer.TitleDescriptionGeneratorInput;
 import com.saasquatch.jsonschemainferrer.TitleDescriptionGenerators;
+import com.saasquatch.jsonschemainferrer.TitleDescriptionGenerator;
 import com.saasquatch.jsonschemainferrer.EnumExtractors;
 import com.saasquatch.jsonschemainferrer.FormatInferrers;
 import com.saasquatch.jsonschemainferrer.JsonSchemaInferrer;
@@ -13,16 +16,22 @@ import java.util.Arrays;
 
 public class Main {
 
+  enum CustomTitleDescriptionGenerator implements TitleDescriptionGenerator {
+
+    TITLE {
+      public String generateTitle(TitleDescriptionGeneratorInput input) {
+        return input.getFieldName();
+      }
+    }
+
+  }
+
   private static final ObjectMapper mapper = new ObjectMapper();
   private static final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
       .setSpecVersion(SpecVersion.DRAFT_2019_09)
-      // Requires commons-validator
-      .setTitleDescriptionGenerator(TitleDescriptionGenerators.useFieldNamesAsTitles())
-      .addFormatInferrers(FormatInferrers.email(), FormatInferrers.ip())
+      .setTitleDescriptionGenerator(CustomTitleDescriptionGenerator.TITLE)
       .setAdditionalPropertiesPolicy(AdditionalPropertiesPolicies.notAllowed())
       .setRequiredPolicy(RequiredPolicies.nonNullCommonFields())
-      .addEnumExtractors(EnumExtractors.validEnum(java.time.Month.class),
-          EnumExtractors.validEnum(java.time.DayOfWeek.class))
       .build();
 
   public static void main(String[] args) throws Exception {
@@ -33,7 +42,10 @@ public class Main {
     final JsonNode resultForSamples =
         inferrer.inferForSamples(Arrays.asList(sample1/*, sample2 */));
     for (JsonNode j : Arrays.asList(resultForSamples)) {
-      System.out.println(mapper.writeValueAsString(j));
+      ObjectNode obj = (ObjectNode) j;
+      obj.put("title", "Exhibit");
+      obj.put("$id", "Exhibit");
+      System.out.println(mapper.writeValueAsString(obj));
     }
   }
 
