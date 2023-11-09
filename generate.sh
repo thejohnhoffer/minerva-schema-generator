@@ -1,6 +1,6 @@
 # Build generator
 cd schema-generator
-#mvn clean package
+mvn clean package
 cd ..
 # Generate Schema
 mkdir schema
