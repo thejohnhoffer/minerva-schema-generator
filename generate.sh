@@ -1,6 +1,6 @@
 # Build generator
 cd schema-generator
-mvn clean package
+#mvn clean package
 cd ..
 # Generate Schema
 mkdir schema
@@ -8,8 +8,12 @@ java -jar schema-generator/target/minerva-1.5.0-jar-with-dependencies.jar > sche
 # Generate Markdown
 pnpm jsonschema2md -d schema -o exhibit -h false -s proptable -s definedinfact -s nullablefact -s typesection
 cd exhibit
-find . -type f ! \( -name '*items.md' -o -name 'index.md' \) -exec rm -f {} +
+# Remove prefix
 for f in index-properties*; do mv "$f" "${f/index-properties-/}"; done
+# Keep selected non-array definitions
+mv 'stories-items-properties-waypoints-items-properties-lensing.md' 'lensing-items.md'
+# Otherwise, remove non-array definitions
+find . -type f ! \( -name '*items.md' -o -name 'index.md' \) -exec rm -f {} +
 mv 'stories-items-properties-waypoints-items.md' 'waypoints-items.md'
 rm 'stories-items-properties-waypoints-items-properties-pan-items.md'
 rm 'groups-items-properties-descriptions-items.md'
